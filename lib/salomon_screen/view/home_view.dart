@@ -1,3 +1,4 @@
+import 'package:btl_iot/core/route/app_route.dart';
 import 'package:btl_iot/core/utils/color_utils.dart';
 import 'package:btl_iot/core/utils/media_utils.dart';
 import 'package:btl_iot/core/utils/text_style_utils.dart';
@@ -9,13 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomeView extends StatelessWidget {
-  HomeView({super.key});
-
-  final List<String> imgList = [
-    'Card1',
-    'Card2',
-    'Card3',
-  ];
+  const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +77,7 @@ class HomeView extends StatelessWidget {
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               onTap: () {
-
+                Navigator.pushNamed(context, AppRoutes.profile);
               },
               child: Container(
                 height: 100,
@@ -164,49 +159,43 @@ class HomeView extends StatelessWidget {
       CardIot(
         iconFirst: FontAwesomeIcons.temperatureLow,
         iconSecond: FontAwesomeIcons.temperatureHigh,
-        colorIconFirst: ColorUtils.blueAccent,
-        colorIconSecond: ColorUtils.redAccent,
-        colorSlider: ColorUtils.redAccent,
-        unitFirst: '(0°C)',
-        unitSecond: '(50°C)',
-        value: 20,
+        colorIcon: ColorUtils.redAccent,
+        unit: '°C',
+        value: 28,
         min: 0,
         max: 50,
         iconFeature: FontAwesomeIcons.wind,
         feature: 'Nhiệt độ',
         device: 'Điều hòa:',
+        checkActive: true,
         onTap: () {},
       ),
       CardIot(
-        iconFirst: FontAwesomeIcons.temperatureLow,
+        iconFirst: FontAwesomeIcons.droplet,
         iconSecond: FontAwesomeIcons.water,
-        colorIconFirst: ColorUtils.blueAccent.withOpacity(0.5),
-        colorIconSecond: ColorUtils.blueAccent,
-        colorSlider: ColorUtils.blueAccent,
-        unitFirst: '(20%)',
-        unitSecond: '(90%)',
-        value: 20,
-        min: 0,
-        max: 50,
+        colorIcon: ColorUtils.blueAccent,
+        unit: '%',
+        value: 65,
+        min: 20,
+        max: 90,
         iconFeature: FontAwesomeIcons.fan,
         feature: 'Độ ẩm',
         device: 'Quạt:',
+        checkActive: true,
         onTap: () {},
       ),
       CardIot(
         iconFirst: FontAwesomeIcons.moon,
         iconSecond: FontAwesomeIcons.sun,
-        colorIconFirst: ColorUtils.yellowGold.withOpacity(0.5),
-        colorIconSecond: ColorUtils.yellowGold,
-        colorSlider: ColorUtils.yellowGold,
-        unitFirst: '(6000Lux)',
-        unitSecond: '(1Lux)',
-        value: 20,
-        min: 0,
-        max: 50,
+        colorIcon: ColorUtils.yellowGold,
+        unit: 'Lux',
+        value: 450,
+        min: 1,
+        max: 1023,
         iconFeature: FontAwesomeIcons.lightbulb,
         feature: 'Ánh sáng',
         device: 'Đèn:',
+        checkActive: true,
         onTap: () {},
       ),
     ];

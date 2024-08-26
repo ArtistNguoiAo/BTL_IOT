@@ -17,7 +17,7 @@ class SalomonScreen extends StatefulWidget {
 
 class _SalomonScreenState extends State<SalomonScreen> {
   final List<Widget> _pages = [
-    HomeView(),
+    const HomeView(),
     const ListInfoView(),
     const HistoryView(),
   ];

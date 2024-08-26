@@ -7,5 +7,5 @@ class ColorUtils {
   static Color grey = const Color(0xFF9E9E9E);
   static Color redAccent = Colors.redAccent;
   static Color blueAccent = Colors.blueAccent;
-  static Color yellowGold= const Color(0xFFFFDF00);
+  static Color yellowGold = const Color(0xFFFFDF00);
 }

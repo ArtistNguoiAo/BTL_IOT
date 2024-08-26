@@ -9,33 +9,29 @@ class CardIot extends StatelessWidget {
     super.key,
     required this.iconFirst,
     required this.iconSecond,
-    required this.colorIconFirst,
-    required this.colorIconSecond,
-    required this.colorSlider,
-    required this.unitFirst,
-    required this.unitSecond,
+    required this.colorIcon,
+    required this.unit,
     required this.value,
     required this.min,
     required this.max,
     required this.iconFeature,
     required this.feature,
     required this.device,
+    required this.checkActive,
     required this.onTap,
   });
 
   final IconData iconFirst;
   final IconData iconSecond;
-  final Color colorIconFirst;
-  final Color colorIconSecond;
-  final Color colorSlider;
-  final String unitFirst;
-  final String unitSecond;
+  final Color colorIcon;
+  final String unit;
   final double value;
   final double min;
   final double max;
   final IconData iconFeature;
   final String feature;
   final String device;
+  final bool checkActive;
   final Function onTap;
 
   @override
@@ -61,7 +57,7 @@ class CardIot extends StatelessWidget {
               children: [
                 FaIcon(
                   iconFirst,
-                  color: colorIconFirst,
+                  color: colorIcon,
                 ),
                 Expanded(
                   child: Slider(
@@ -70,20 +66,20 @@ class CardIot extends StatelessWidget {
                       min: min,
                       max: max,
                       divisions: 100,
-                      activeColor: colorSlider,
-                      inactiveColor: colorSlider.withOpacity(0.2),
+                      activeColor: colorIcon,
+                      inactiveColor: colorIcon.withOpacity(0.2),
                     )
                 ),
                 FaIcon(
                   iconSecond,
-                  color: colorIconSecond,
+                  color: colorIcon,
                 ),
               ],
             ),
             Row(
               children: [
                 Text(
-                  unitFirst,
+                  '(${min.toInt()}$unit)',
                   style: TextStyleUtils.textStyleNunitoS16W400Black,
                 ),
                 Expanded(
@@ -95,7 +91,7 @@ class CardIot extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  unitSecond,
+                  '(${max.toInt()}$unit)',
                   style: TextStyleUtils.textStyleNunitoS16W400Black,
                 ),
               ],
@@ -110,7 +106,7 @@ class CardIot extends StatelessWidget {
                 Expanded(child: Container()),
                 //const SizedBox(width: 10),
                 LiteRollingSwitch(
-                  value: true,
+                  value: checkActive,
                   width: 120,
                   textOn: 'Active',
                   textOff: 'Inactive',
