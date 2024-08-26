@@ -1,5 +1,6 @@
 import 'package:btl_iot/core/route/app_route.dart';
 import 'package:btl_iot/core/utils/media_utils.dart';
+import 'package:btl_iot/core/utils/text_style_utils.dart';
 import 'package:btl_iot/splash_screen/cubit/splash_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -21,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
       child: BlocConsumer<SplashCubit, SplashState>(
         listener: (context, state) {
           if (state is SplashSuccess) {
-            Navigator.pushNamed(context, AppRoutes.home);
+            Navigator.pushReplacementNamed(context, AppRoutes.salomon);
           }
         },
         builder: (context, state) {
@@ -51,7 +52,8 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ),
                 Text(
-                    'Developed by Le Quoc Trung',
+                  'Developed by Le Quoc Trung',
+                  style: TextStyleUtils.textStyleNunitoS16W400Black,
                 ).animate().addEffect(
                     const FadeEffect(
                       duration: Duration(seconds: 2),
