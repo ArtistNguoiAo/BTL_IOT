@@ -15,12 +15,14 @@ class TextStyleUtils {
 
   // // weight
   static TextStyle textStyleNunitoS16W400 = textStyleNunitoS16.copyWith(fontWeight: FontWeight.w400);
+  static TextStyle textStyleNunitoS18W600 = textStyleNunitoS18.copyWith(fontWeight: FontWeight.w600);
   static TextStyle textStyleNunitoS20W700 = textStyleNunitoS20.copyWith(fontWeight: FontWeight.w700);
   static TextStyle textStyleNunitoS24W700 = textStyleNunitoS24.copyWith(fontWeight: FontWeight.w700);
 
   // color
   static TextStyle textStyleNunitoS16W400Black = textStyleNunitoS16W400.copyWith(color: ColorUtils.black);
   static TextStyle textStyleNunitoS16W400White = textStyleNunitoS16W400.copyWith(color: ColorUtils.white);
+  static TextStyle textStyleNunitoS18W600Black = textStyleNunitoS18W600.copyWith(color: ColorUtils.black);
   static TextStyle textStyleNunitoS20W700Black = textStyleNunitoS20W700.copyWith(color: ColorUtils.black);
   static TextStyle textStyleNunitoS20W700White = textStyleNunitoS20W700.copyWith(color: ColorUtils.white);
   static TextStyle textStyleNunitoS24W700Black = textStyleNunitoS24W700.copyWith(color: ColorUtils.black);

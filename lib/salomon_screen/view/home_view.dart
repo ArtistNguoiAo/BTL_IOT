@@ -27,6 +27,9 @@ class HomeView extends StatelessWidget {
                 _header(context),
                 _spaceHeight(16),
                 _body(context),
+                _spaceHeight(16),
+                _titleGraph(),
+                _spaceHeight(16),
               ],
             ),
           );
@@ -199,5 +202,12 @@ class HomeView extends StatelessWidget {
         onTap: () {},
       ),
     ];
+  }
+
+  Widget _titleGraph() {
+    return Text(
+      'Biểu đồ',
+      style: TextStyleUtils.textStyleNunitoS24W700Black,
+    );
   }
 }

@@ -36,6 +36,9 @@ class _SalomonScreenState extends State<SalomonScreen> {
             child: Scaffold(
               body: _pages[state.currentIndex],
               bottomNavigationBar: SalomonBottomBar(
+                selectedItemColor: ColorUtils.primaryColor,
+                unselectedItemColor: ColorUtils.grey,
+                backgroundColor: ColorUtils.white,
                 currentIndex: state.currentIndex,
                 onTap: (i) {
                   context.read<SalomonCubit>().init(i);
@@ -44,17 +47,14 @@ class _SalomonScreenState extends State<SalomonScreen> {
                   SalomonBottomBarItem(
                     icon: const FaIcon(FontAwesomeIcons.houseChimney),
                     title: const Text("Home"),
-                    selectedColor: ColorUtils.primaryColor,
                   ),
                   SalomonBottomBarItem(
                     icon: const FaIcon(FontAwesomeIcons.listUl),
-                    title: const Text("List"),
-                    selectedColor: ColorUtils.primaryColor,
+                    title: const Text("List Data"),
                   ),
                   SalomonBottomBarItem(
                     icon: const FaIcon(FontAwesomeIcons.clockRotateLeft),
-                    title: const Text("History"),
-                    selectedColor: ColorUtils.primaryColor,
+                    title: const Text("History Action"),
                   ),
                 ],
               ),
