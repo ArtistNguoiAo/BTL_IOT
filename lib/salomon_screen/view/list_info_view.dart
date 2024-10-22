@@ -1,12 +1,27 @@
 import 'package:btl_iot/core/route/app_route.dart';
 import 'package:btl_iot/core/utils/color_utils.dart';
 import 'package:btl_iot/core/utils/text_style_utils.dart';
+import 'package:btl_iot/salomon_screen/view/fake_data.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class ListInfoView extends StatelessWidget {
-  const ListInfoView({super.key});
+class ListInfoView extends StatefulWidget {
+  ListInfoView({super.key});
 
+  @override
+  State<ListInfoView> createState() => _ListInfoViewState();
+}
+
+class _ListInfoViewState extends State<ListInfoView> {
+   List<DataResponse> list = FakeData.listFake;
+   List<String> listTest = <String>['Điều hoà', 'Qu', 'Three', 'Four'];
+   String dropdownValue = '';
+
+  @override
+  void initState() {
+    dropdownValue = listTest.first;
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,23 +55,36 @@ class ListInfoView extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
-            child: TextField(
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: "Search",
-                prefixIcon: Icon(
-                  FontAwesomeIcons.magnifyingGlass,
-                  color: ColorUtils.grey,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      hintText: "Search",
+                      prefixIcon: Icon(
+                        FontAwesomeIcons.magnifyingGlass,
+                        color: ColorUtils.grey,
+                      ),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.primaryColor)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.grey)),
+                    ),
+                    onSubmitted: (value) {
+
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        list = FakeData.listFake.where((element) => element.id.contains(value) ||
+                            element.time.contains(value) ||
+                            element.fakeA.contains(value) ||
+                            element.fakeB.contains(value) ||
+                            element.fakeC.contains(value)
+                        ).toList();
+                      });
+                    },
+                  ),
                 ),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.primaryColor)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.grey)),
-              ),
-              onSubmitted: (value) {
-
-              },
-              onChanged: (value) {
-
-              },
+              ],
             ),
           ),
           Expanded(
@@ -64,7 +92,7 @@ class ListInfoView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: ListView.separated(
                 shrinkWrap: true,
-                itemCount: 30,
+                itemCount: list.length,
                 separatorBuilder: (context, index) {
                   return const Divider();
                 },
@@ -76,26 +104,26 @@ class ListInfoView extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              "ID00$index",
+                              list[index].id,
                               style: TextStyleUtils.textStyleNunitoS18W600Black,
                             ),
                           ),
                           Text(
-                            "14/01/2024",
+                            list[index].time,
                             style: TextStyleUtils.textStyleNunitoS16W400Black,
                           ),
                         ],
                       ),
                       Text(
-                        "Nhiệt độ: 25°C",
+                        'Nhiệt độ: ${list[index].fakeA}',
                         style: TextStyleUtils.textStyleNunitoS16W400Black,
                       ),
                       Text(
-                        "Độ ẩm: 50%",
+                        'Độ ẩm: ${list[index].fakeB}',
                         style: TextStyleUtils.textStyleNunitoS16W400Black,
                       ),
                       Text(
-                        "Ánh sáng: 1000 lux",
+                        'Ánh sáng: ${list[index].fakeC}',
                         style: TextStyleUtils.textStyleNunitoS16W400Black,
                       ),
                     ],

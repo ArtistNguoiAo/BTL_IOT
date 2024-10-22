@@ -4,6 +4,7 @@ import 'package:btl_iot/core/utils/text_style_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -41,17 +42,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 _avatar(),
                 _spaceHeight(16),
-                _item(context, 'Lê Quốc Trung', FontAwesomeIcons.userLarge),
+                _item(context, 'Lê Quốc Trung', FontAwesomeIcons.userLarge, ''),
                 _spaceHeight(16),
-                _item(context, 'B21DCCN730', FontAwesomeIcons.addressCard),
+                _item(context, 'B21DCCN730', FontAwesomeIcons.addressCard, ''),
                 _spaceHeight(16),
-                _item(context, 'lequoctrung.dev.2k3@gmail.com', FontAwesomeIcons.at),
+                _item(context, 'lequoctrung.dev.2k3@gmail.com', FontAwesomeIcons.at, ''),
                 _spaceHeight(16),
-                _item(context, '0333 982 632', FontAwesomeIcons.phone),
+                _item(context, '0333 982 632', FontAwesomeIcons.phone, ''),
                 _spaceHeight(16),
-                _item(context, 'ArtistNguoiAo', FontAwesomeIcons.github),
+                _item(context, 'ArtistNguoiAo', FontAwesomeIcons.github, 'https://github.com/ArtistNguoiAo/BTL_IOT'),
                 _spaceHeight(16),
-                _item(context, 'Trung', FontAwesomeIcons.facebook),
+                _item(context, 'Trung', FontAwesomeIcons.facebook, 'https://www.facebook.com/proletrung?mibextid=ZbWKwL'),
+                _spaceHeight(16),
+                _item(context, 'Báo cáo', FontAwesomeIcons.filePdf, ''),
+                _spaceHeight(16),
+                _item(context, 'API', FontAwesomeIcons.link, ''),
                 _spaceHeight(16),
                 _itemPremium(),
                 _spaceHeight(16),
@@ -71,27 +76,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _item(BuildContext context, String title, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: ColorUtils.primaryColor
+  Widget _item(BuildContext context, String title, IconData icon, String url) {
+    return InkWell(
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      onTap: () {
+        if(url.isNotEmpty) {
+          _launchUrl(url);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: ColorUtils.primaryColor
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          FaIcon(
-            icon,
-            color: ColorUtils.primaryColor,
-          ),
-          const SizedBox(width: 16),
-          Text(
-            title,
-            style: TextStyleUtils.textStyleNunitoS20W700Black,
-          ),
-        ],
+        child: Row(
+          children: [
+            FaIcon(
+              icon,
+              color: ColorUtils.primaryColor,
+            ),
+            const SizedBox(width: 16),
+            Text(
+              title,
+              style: TextStyleUtils.textStyleNunitoS20W700Black,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -148,5 +162,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+  }
+}
+
+Future<void> _launchUrl(String url) async {
+  final uri = Uri.parse(url);
+  if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
+    throw Exception('Could not launch $uri');
   }
 }
