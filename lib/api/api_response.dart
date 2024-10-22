@@ -10,9 +10,9 @@ class ApiResponse {
 
   final http.Client _client;
 
-  //final baseUrl = 'http://192.168.178.156:8080/api/v1';
+  final baseUrl = 'http://192.168.178.156:8080/api/v1';
 
-  final baseUrl = 'http://192.168.1.77:8080/api/v1';
+  //final baseUrl = 'http://localhost:8080/api/v1';
 
   Future<List<OpsHistoryEntity>> getOpsHistory({
     required int page,
@@ -32,7 +32,6 @@ class ApiResponse {
     if(startTime != null && endTime != null) {
       link += '&startTime=$startTime&endTime=$endTime';
     }
-    print(link);
     final url = Uri.parse(link);
     try {
       final response = await http.get(url);
@@ -48,12 +47,32 @@ class ApiResponse {
     }
   }
 
-  Future<List<SensorDataEntity>> getSensorData(int page) async {
-    final url = Uri.parse('$baseUrl/all-sensor-data?page=$page&size=10');
+  Future<List<SensorDataEntity>> getSensorData({
+    required int page,
+    required int size,
+    String? dataSearch,
+    required double temperatureMin,
+    required double temperatureMax,
+    required double humidityMin,
+    required double humidityMax,
+    required double lightMin,
+    required double lightMax,
+    String? startTime,
+    String? endTime,
+  }) async {
+    var link = '$baseUrl/search-sensor-data?page=$page&size=$size&temperatureMin=$temperatureMin&temperatureMax=$temperatureMax&humidityMin=$humidityMin&humidityMax=$humidityMax&lightMin=$lightMin&lightMax=$lightMax';
+    if(dataSearch != null) {
+      link += '&dataSearch=$dataSearch';
+    }
+    if(startTime != null && endTime != null) {
+      link += '&startTime=$startTime&endTime=$endTime';
+    }
+    final url = Uri.parse(link);
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         var data = await jsonDecode(response.body);
+        totalPagesData = data['totalPages'];
         return List<SensorDataEntity>.from(data['content'].map((x) => SensorDataEntity.fromJson(x)));
       } else {
         return [];

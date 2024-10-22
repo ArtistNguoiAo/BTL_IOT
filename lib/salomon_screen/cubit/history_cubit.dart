@@ -16,18 +16,17 @@ class HistoryCubit extends Cubit<HistoryState> {
 
   final ApiResponse apiResponse = ConfigDI().injector.get();
 
-
   FutureOr<void> init({required int page}) async {
     emit(HistoryLoading());
     try{
       final listOpsHistory = await apiResponse.getOpsHistory(
-        page: page,
+        page: page - 1,
         size: 10,
       );
       emit(
         HistoryLoaded(
           listOpsHistory: listOpsHistory,
-          page: 0,
+          page: 1,
           totalPages: totalPagesOps,
         ),
       );
@@ -38,17 +37,38 @@ class HistoryCubit extends Cubit<HistoryState> {
   }
 
   FutureOr<void> search({
-    int? page,
+    required int page,
     String? status,
     String? device,
     String? startTime,
     String? endTime,
   }) async {
-    final currentState = state as HistoryLoaded;
     emit(HistoryLoading());
     try{
+      //check l1
+      if(page > totalPagesOps) {
+        page = totalPagesOps;
+      }
+      if(page == 0) {
+        page = 1;
+      }
+      await apiResponse.getOpsHistory(
+        page: page - 1,
+        size: 10,
+        status: status != null ? status == 'ON' ? true : status == 'OFF' ? false : null : null,
+        device: device != null ? device == 'Điều hoà' ?  0 : device == 'Quạt' ? 1 : device == 'Đèn' ? 2 : null : null,
+        startTime: startTime,
+        endTime: endTime,
+      );
+      //check l2
+      if(page > totalPagesOps) {
+        page = totalPagesOps;
+      }
+      if(page == 0) {
+        page = 1;
+      }
       final listOpsHistory = await apiResponse.getOpsHistory(
-        page: page ?? currentState.page,
+        page: page - 1,
         size: 10,
         status: status != null ? status == 'ON' ? true : status == 'OFF' ? false : null : null,
         device: device != null ? device == 'Điều hoà' ?  0 : device == 'Quạt' ? 1 : device == 'Đèn' ? 2 : null : null,
@@ -58,7 +78,7 @@ class HistoryCubit extends Cubit<HistoryState> {
       emit(
         HistoryLoaded(
           listOpsHistory: listOpsHistory,
-          page: 0,
+          page: page,
           totalPages: totalPagesOps,
         ),
       );

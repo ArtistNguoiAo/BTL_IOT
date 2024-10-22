@@ -85,7 +85,7 @@ class HistoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HistoryCubit()..init(page: 0),
+      create: (context) => HistoryCubit()..init(page: 1),
       child: Scaffold(
         body: Column(
           children: [
@@ -184,6 +184,7 @@ class HistoryView extends StatelessWidget {
               ),
               childrenPadding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
               backgroundColor: ColorUtils.white,
+              collapsedBackgroundColor: ColorUtils.white,
               shape: const Border(),
               controller: expansionTileController,
               children: [
@@ -267,7 +268,14 @@ class HistoryView extends StatelessWidget {
             ),
             BlocConsumer<HistoryCubit, HistoryState>(
               listener: (context, state) {
-                // TODO: implement listener
+                if(state is HistoryError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: ColorUtils.redAccent,
+                    ),
+                  );
+                }
               },
               builder: (context, state) {
                 if(state is HistoryLoading) {
@@ -277,15 +285,15 @@ class HistoryView extends StatelessWidget {
                   return Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Container(
-                        color: ColorUtils.white,
-                        child: SingleChildScrollView(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
+                      child: SingleChildScrollView(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Container(
+                                  color: ColorUtils.white,
                                   child: Table(
                                     border: TableBorder.all(color: Colors.black, width: 1),
                                     columnWidths: const {
@@ -317,8 +325,8 @@ class HistoryView extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -329,16 +337,24 @@ class HistoryView extends StatelessWidget {
             ),
             BlocConsumer<HistoryCubit, HistoryState>(
               listener: (context, state) {
-                // TODO: implement listener
+                if(state is HistoryLoaded) {
+                  textPageEditingController.text = state.page.toString();
+                }
               },
               builder: (context, state) {
                 if(state is HistoryLoaded) {
                   return Row(
                     children: [
-                      const SizedBox(width: 16),
+                      const Spacer(),
                       InkWell(
                         onTap: () {
-                          context.read<HistoryCubit>().init(page: int.parse(textPageEditingController.text));
+                          context.read<HistoryCubit>().search(
+                            page: textPageEditingController.text.isNotEmpty ? int.parse(textPageEditingController.text) : 1,
+                            device: searchEditingController.text.trim(),
+                            status: device,
+                            startTime: startEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(startEditingController.text) : null,
+                            endTime: endEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(endEditingController.text) : null,
+                          );
                         },
                         child: Container(
                           padding: const EdgeInsets.all(16),
@@ -354,9 +370,13 @@ class HistoryView extends StatelessWidget {
                       ),
                       Container(
                         width: 100,
-                        color: ColorUtils.white,
+                        decoration: BoxDecoration(
+                          color: ColorUtils.white,
+                          borderRadius: const BorderRadius.only(topRight: Radius.circular(10),bottomRight: Radius.circular(10)),
+                        ),
                         child: TextField(
                           controller: textPageEditingController,
+                          keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             hintText: "Page",
                             focusedBorder: OutlineInputBorder(borderRadius: const BorderRadius.only(topRight: Radius.circular(10),bottomRight: Radius.circular(10)), borderSide: BorderSide(color: ColorUtils.primaryColor)),
@@ -365,15 +385,17 @@ class HistoryView extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Page ${state.page + 1} of ${state.totalPages}',
+                        ' of ${state.totalPages}',
                         style: TextStyleUtils.textStyleNunitoS16W400Black,
-                      )
+                      ),
+                      const SizedBox(width: 16),
                     ],
                   );
                 }
                 return Container();
               },
-            )
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),

@@ -8,15 +8,15 @@ final class ListInfoInitial extends ListInfoState {}
 final class ListInfoLoading extends ListInfoState {}
 
 final class ListInfoLoaded extends ListInfoState {
-  final List<SensorDataEntity> listSensorDataEntity;
-  final String keyword;
-  final String condition;
+  final List<SensorDataEntity> listSensorData;
+  final int page;
+  final int totalPages;
 
-  ListInfoLoaded({required this.listSensorDataEntity, required this.keyword, required this.condition});
+  ListInfoLoaded({required this.listSensorData, required this.page, required this.totalPages});
 }
 
 final class ListInfoError extends ListInfoState {
   final String message;
 
-  ListInfoError(this.message);
+  ListInfoError({required this.message});
 }
