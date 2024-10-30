@@ -1,3 +1,4 @@
+import 'package:btl_iot/core/route/app_route.dart';
 import 'package:btl_iot/core/utils/color_utils.dart';
 import 'package:btl_iot/core/utils/media_utils.dart';
 import 'package:btl_iot/core/utils/text_style_utils.dart';
@@ -52,12 +53,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _spaceHeight(16),
                 _item(context, 'ArtistNguoiAo', FontAwesomeIcons.github, 'https://github.com/ArtistNguoiAo/BTL_IOT'),
                 _spaceHeight(16),
-                _item(context, 'Trung', FontAwesomeIcons.facebook, 'https://www.facebook.com/proletrung?mibextid=ZbWKwL'),
+                _item(context, 'Trung', FontAwesomeIcons.facebook, 'https://www.facebook.com/proletrung'),
                 _spaceHeight(16),
-                _item(context, 'Báo cáo', FontAwesomeIcons.filePdf, ''),
+                _itemPdf(context, 'Báo cáo', FontAwesomeIcons.filePdf),
                 _spaceHeight(16),
-                _item(context, 'API', FontAwesomeIcons.link, ''),
-                _spaceHeight(16),
+                //_item(context, 'API', FontAwesomeIcons.link, ''),
+                // _spaceHeight(16),
                 _itemPremium(),
                 _spaceHeight(16),
                 _buttonAdd(),
@@ -88,9 +89,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
+          color: ColorUtils.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: ColorUtils.primaryColor
+          ),
+        ),
+        child: Row(
+          children: [
+            FaIcon(
+              icon,
+              color: ColorUtils.primaryColor,
+            ),
+            const SizedBox(width: 16),
+            Text(
+              title,
+              style: TextStyleUtils.textStyleNunitoS20W700Black,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _itemPdf(BuildContext context, String title, IconData icon) {
+    return InkWell(
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      onTap: () {
+        Navigator.pushNamed(context, AppRoutes.iotPdf);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: ColorUtils.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+              color: ColorUtils.primaryColor
           ),
         ),
         child: Row(
@@ -114,6 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
+        color: ColorUtils.white,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
             color: ColorUtils.yellowGold,

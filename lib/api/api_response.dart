@@ -10,9 +10,32 @@ class ApiResponse {
 
   final http.Client _client;
 
-  final baseUrl = 'http://192.168.178.156:8080/api/v1';
+  final baseUrl = 'http://192.168.114.156:8080/api/v1';
 
   //final baseUrl = 'http://localhost:8080/api/v1';
+
+  Future<void> switchStatus({required bool status, required int device}) async {
+    final url = Uri.parse('$baseUrl/ops');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'status': status,
+          'device': device,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        return;
+      }
+    } catch (e) {
+      return;
+    }
+  }
 
   Future<List<OpsHistoryEntity>> getOpsHistory({
     required int page,

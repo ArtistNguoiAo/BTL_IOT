@@ -6,8 +6,14 @@ class StringHelper {
     return DateFormat('dd-MM-yyyy\nHH:mm:ss').format(dateTime);
   }
 
+  static String convertTimeToStringOnlyTime(String time) {
+    DateTime dateTime = DateTime.parse(time).toLocal();
+    return DateFormat('HH:mm:ss').format(dateTime);
+  }
+
   static String convertStringToOffsetDateTime(String dateTimeString) {
     return DateFormat('dd-MM-yyyy HH:mm:ss').parse(dateTimeString).toUtc().toIso8601String();
   }
+
 
 }

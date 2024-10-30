@@ -104,7 +104,6 @@ class CardIot extends StatelessWidget {
                   style: TextStyleUtils.textStyleNunitoS16W400Black,
                 ),
                 Expanded(child: Container()),
-                //const SizedBox(width: 10),
                 LiteRollingSwitch(
                   value: checkActive,
                   width: 120,
@@ -122,7 +121,7 @@ class CardIot extends StatelessWidget {
                   },
                   onDoubleTap: () {},
                   onSwipe: () {},
-                  onTap: () {},
+                  onTap: onTap,
                 ),
               ],
             ),

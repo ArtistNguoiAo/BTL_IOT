@@ -1,7 +1,10 @@
+import 'package:btl_iot/core/helper/string_helper.dart';
 import 'package:btl_iot/core/route/app_route.dart';
 import 'package:btl_iot/core/utils/color_utils.dart';
 import 'package:btl_iot/core/utils/media_utils.dart';
 import 'package:btl_iot/core/utils/text_style_utils.dart';
+import 'package:btl_iot/core/widget/base_loading.dart';
+import 'package:btl_iot/entity/sensor_data_entity.dart';
 import 'package:btl_iot/salomon_screen/cubit/home_cubit.dart';
 import 'package:btl_iot/salomon_screen/widget/card_iot.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -13,28 +16,45 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class HomeView extends StatelessWidget {
   HomeView({super.key});
 
+  List<String> listTimeData = [];
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HomeCubit(),
+      create: (context) => HomeCubit()..init(),
       child: BlocConsumer<HomeCubit, HomeState>(
         listener: (context, state) {
-          // TODO: implement listener
+          if(state is HomeLoaded) {
+            listTimeData = state.listSensorData.reversed.map((e) => StringHelper.convertTimeToStringOnlyTime(e.time)).toList();
+          }
         },
         builder: (context, state) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                _header(context),
-                _spaceHeight(16),
-                _body(context),
-                _spaceHeight(16),
-                _titleGraph(),
-                _spaceHeight(16),
-                _graph(),
-              ],
-            ),
-          );
+          if(state is HomeLoading) {
+            return const BaseLoading();
+          }
+          if(state is HomeLoaded) {
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  _header(context),
+                  _spaceHeight(16),
+                  _body(
+                    context: context,
+                    checkActiveTemperature: state.checkActiveTemperature,
+                    checkActiveHumidity: state.checkActiveHumidity,
+                    checkActiveLight: state.checkActiveLight,
+                    listSensorData: state.listSensorData,
+                  ),
+                  _spaceHeight(16),
+                  _titleGraph(),
+                  _spaceHeight(16),
+                  _graph(state.listSensorData),
+                  _description(),
+                ],
+              ),
+            );
+          }
+          return Container();
         },
       ),
     );
@@ -143,15 +163,30 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _body(BuildContext context) {
+  Widget _body({
+    required BuildContext context,
+    required bool checkActiveTemperature,
+    required bool checkActiveHumidity,
+    required bool checkActiveLight,
+    required List<SensorDataEntity> listSensorData,
+  }) {
     return CarouselSlider(
       options: CarouselOptions(
         height: 190,
-        autoPlay: true,
+        // autoPlay: true,
         enlargeCenterPage: true,
         viewportFraction: 0.8,
+        onPageChanged: (index, reason) {
+          context.read<HomeCubit>().init();
+        },
       ),
-      items: _listCard(context),
+      items: _listCard(
+        context: context,
+        checkActiveTemperature: checkActiveTemperature,
+        checkActiveHumidity: checkActiveHumidity,
+        checkActiveLight: checkActiveLight,
+        listSensorData: listSensorData,
+      ),
     );
   }
 
@@ -159,49 +194,61 @@ class HomeView extends StatelessWidget {
     return SizedBox(height: height);
   }
 
-  List<Widget> _listCard(BuildContext context) {
+  List<Widget> _listCard({
+    required BuildContext context,
+    required bool checkActiveTemperature,
+    required bool checkActiveHumidity,
+    required bool checkActiveLight,
+    required List<SensorDataEntity> listSensorData,
+  }) {
     return [
       CardIot(
         iconFirst: FontAwesomeIcons.temperatureLow,
         iconSecond: FontAwesomeIcons.temperatureHigh,
         colorIcon: ColorUtils.redAccent,
         unit: '°C',
-        value: 28,
+        value: listSensorData.first.temperature,
         min: 0,
-        max: 50,
+        max: 100,
         iconFeature: FontAwesomeIcons.wind,
         feature: 'Nhiệt độ',
         device: 'Điều hòa:',
-        checkActive: true,
-        onTap: () {},
+        checkActive: checkActiveTemperature,
+        onTap: () {
+          context.read<HomeCubit>().switchStatus(status: !checkActiveTemperature, device: 0);
+        },
       ),
       CardIot(
         iconFirst: FontAwesomeIcons.droplet,
         iconSecond: FontAwesomeIcons.water,
         colorIcon: ColorUtils.blueAccent,
         unit: '%',
-        value: 65,
-        min: 20,
-        max: 90,
+        value: listSensorData.first.humidity,
+        min: 0,
+        max: 100,
         iconFeature: FontAwesomeIcons.fan,
         feature: 'Độ ẩm',
         device: 'Quạt:',
-        checkActive: true,
-        onTap: () {},
+        checkActive: checkActiveHumidity,
+        onTap: () {
+          context.read<HomeCubit>().switchStatus(status: !checkActiveHumidity, device: 1);
+        },
       ),
       CardIot(
         iconFirst: FontAwesomeIcons.moon,
         iconSecond: FontAwesomeIcons.sun,
         colorIcon: ColorUtils.yellowGold,
         unit: 'Lux',
-        value: 450,
+        value: listSensorData.first.light,
         min: 0,
         max: 4095,
         iconFeature: FontAwesomeIcons.lightbulb,
         feature: 'Ánh sáng',
         device: 'Đèn:',
-        checkActive: true,
-        onTap: () {},
+        checkActive: checkActiveLight,
+        onTap: () {
+          context.read<HomeCubit>().switchStatus(status: !checkActiveLight, device: 2);
+        },
       ),
     ];
   }
@@ -228,9 +275,9 @@ class HomeView extends StatelessWidget {
     ColorUtils.yellowGold,
   ];
 
-  Widget _graph() {
+  Widget _graph(List<SensorDataEntity> listSensorData) {
     return AspectRatio(
-      aspectRatio: 1.70,
+      aspectRatio: 1.50,
       child: Padding(
         padding: const EdgeInsets.only(
           right: 6,
@@ -239,14 +286,15 @@ class HomeView extends StatelessWidget {
           bottom: 12,
         ),
         child: LineChart(
-          mainData(),
+          mainData(listSensorData),
         ),
       ),
     );
   }
 
-  LineChartData mainData() {
+  LineChartData mainData(List<SensorDataEntity> listSensorData) {
     return LineChartData(
+      backgroundColor: ColorUtils.white,
       gridData: FlGridData(
         show: true,
         drawVerticalLine: true,
@@ -299,47 +347,15 @@ class HomeView extends StatelessWidget {
         show: true,
       ),
       minX: 0,
-      maxX: 10,
+      maxX: 9,
       minY: 0,
       maxY: 10,
       lineBarsData: [
         LineChartBarData(
-          spots: const [
-            FlSpot(0, 3),
-            FlSpot(1, 3),
-            FlSpot(2, 3),
-            FlSpot(3, 3),
-            FlSpot(4, 5),
-            FlSpot(5, 5),
-            FlSpot(6, 5),
-            FlSpot(7, 4),
-            FlSpot(8, 4),
-            FlSpot(9, 4),
-            FlSpot(10, 4),
-          ],
-          isCurved: true,
-          gradient: LinearGradient(
-            colors: blueGradientColors,
-          ),
-          barWidth: 2,
-          dotData: const FlDotData(
-            show: false,
-          ),
-        ),
-        LineChartBarData(
-          spots: const [
-            FlSpot(0, 3.5),
-            FlSpot(1, 3.5),
-            FlSpot(2, 3.5),
-            FlSpot(3, 3.5),
-            FlSpot(4, 5.5),
-            FlSpot(5, 5.5),
-            FlSpot(6, 5.5),
-            FlSpot(7, 4.5),
-            FlSpot(8, 4.5),
-            FlSpot(9, 4.5),
-            FlSpot(10, 4.5),
-          ],
+          spots: listSensorData.asMap().entries.map((entry) {
+            int reversedIndex = listSensorData.length - 1 - entry.key;
+            return FlSpot(reversedIndex.toDouble(), entry.value.temperature / 10);
+          }).toList(),
           isCurved: true,
           gradient: LinearGradient(
             colors: redGradientColors,
@@ -350,19 +366,24 @@ class HomeView extends StatelessWidget {
           ),
         ),
         LineChartBarData(
-          spots: const [
-            FlSpot(0, 6.5),
-            FlSpot(1, 6.5),
-            FlSpot(2, 6.5),
-            FlSpot(3, 6.5),
-            FlSpot(4, 5.5),
-            FlSpot(5, 5.5),
-            FlSpot(6, 7.5),
-            FlSpot(7, 7.5),
-            FlSpot(8, 6.5),
-            FlSpot(9, 6.5),
-            FlSpot(10, 6.5),
-          ],
+          spots: listSensorData.asMap().entries.map((entry) {
+            int reversedIndex = listSensorData.length - 1 - entry.key;
+            return FlSpot(reversedIndex.toDouble(), entry.value.humidity / 10);
+          }).toList(),
+          isCurved: true,
+          gradient: LinearGradient(
+            colors: blueGradientColors,
+          ),
+          barWidth: 2,
+          dotData: const FlDotData(
+            show: false,
+          ),
+        ),
+        LineChartBarData(
+          spots: listSensorData.asMap().entries.map((entry) {
+            int reversedIndex = listSensorData.length - 1 - entry.key;
+            return FlSpot(reversedIndex.toDouble(), entry.value.light / 409.5);
+          }).toList(),
           isCurved: true,
           gradient: LinearGradient(
             colors: yellowGradientColors,
@@ -373,29 +394,86 @@ class HomeView extends StatelessWidget {
           ),
         ),
       ],
+      lineTouchData: LineTouchData(
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map((LineBarSpot touchedSpot) {
+              const textStyle = TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              );
+
+              // Kiểm tra barIndex và chỉnh sửa giá trị và nhãn
+              double modifiedY = touchedSpot.y;
+              String label = '';
+              String init = '';
+
+              if (touchedSpot.barIndex == 0) {
+                modifiedY *= 10; // Đồ thị 1
+                label = 'Nhiệt độ: ';
+                init = '°C';
+              } else if (touchedSpot.barIndex == 1) {
+                modifiedY *= 10; // Đồ thị 2
+                label = 'Độ ẩm: ';
+                init = '%';
+              } else if (touchedSpot.barIndex == 2) {
+                modifiedY *= 409.5; // Đồ thị 2
+                label = 'Ánh sáng: ';
+                init = 'Lux';
+              }
+
+              return LineTooltipItem(
+                '$label${modifiedY.toStringAsFixed(1)} $init',
+                textStyle,
+              );
+            }).toList();
+          },
+        ),
+        touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
+          if (touchResponse != null &&
+              touchResponse.lineBarSpots != null &&
+              event is FlTapUpEvent) {
+            final touchedSpot = touchResponse.lineBarSpots!.first;
+
+            double modifiedY = touchedSpot.y;
+            String label = '';
+
+            if (touchedSpot.barIndex == 0) {
+              modifiedY *= 10;
+              label = 'Nhiệt độ: ';
+            } else if (touchedSpot.barIndex == 1) {
+              modifiedY *= 100;
+              label = 'Độ ẩm: ';
+            }else if (touchedSpot.barIndex == 2) {
+              modifiedY *= 409.5; // Đồ thị 2
+              label = 'Ánh sáng: ';
+            }
+          }
+        },
+        handleBuiltInTouches: true,
+      ),
     );
   }
 
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+  Widget bottomTitleWidgets(double value, TitleMeta meta, ) {
     const style = TextStyle(
       fontSize: 12,
     );
+
     String text;
     switch (value.toInt()) {
-      case 1:
-        text = '12:00:01';
+      case 0:
+        text = listTimeData[0];
         break;
       case 3:
-        text = '12:00:03';
+        text = listTimeData[3];
         break;
-      case 5:
-        text = '12:00:05';
-        break;
-      case 7:
-        text = '12:00:07';
+      case 6:
+        text = listTimeData[6];
         break;
       case 9:
-        text = '12:00:09';
+        text = listTimeData[9];
         break;
       default:
         return Container();
@@ -455,5 +533,74 @@ class HomeView extends StatelessWidget {
         return Container();
     }
     return Text(text, style: style, textAlign: TextAlign.right);
+  }
+
+  Widget _description() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 48),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Chú thích',
+            style: TextStyleUtils.textStyleNunitoS24W700Black,
+          ),
+          _spaceHeight(8),
+          Row(
+            children: [
+              Container(
+                height: 12,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: ColorUtils.redAccent,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+              const SizedBox(width: 8,),
+              Text(
+                'Nhiệt độ',
+                style: TextStyleUtils.textStyleNunitoS16W400Black,
+              )
+            ],
+          ),
+          _spaceHeight(8),
+          Row(
+            children: [
+              Container(
+                height: 12,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: ColorUtils.blueAccent,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+              const SizedBox(width: 8,),
+              Text(
+                'Độ ẩm',
+                style: TextStyleUtils.textStyleNunitoS16W400Black,
+              )
+            ],
+          ),
+          _spaceHeight(8),
+          Row(
+            children: [
+              Container(
+                height: 12,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: ColorUtils.yellowGold,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+              const SizedBox(width: 8,),
+              Text(
+                'Ánh sáng',
+                style: TextStyleUtils.textStyleNunitoS16W400Black,
+              )
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
