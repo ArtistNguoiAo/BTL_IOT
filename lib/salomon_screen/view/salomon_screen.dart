@@ -1,5 +1,6 @@
 import 'package:btl_iot/core/utils/color_utils.dart';
 import 'package:btl_iot/salomon_screen/cubit/salomon_cubit.dart';
+import 'package:btl_iot/salomon_screen/view/dash_board_view.dart';
 import 'package:btl_iot/salomon_screen/view/history_view.dart';
 import 'package:btl_iot/salomon_screen/view/home_view.dart';
 import 'package:btl_iot/salomon_screen/view/list_info_view.dart';
@@ -20,6 +21,7 @@ class _SalomonScreenState extends State<SalomonScreen> {
     HomeView(),
     ListInfoView(),
     HistoryView(),
+    DashBoardView()
   ];
 
   @override
@@ -55,6 +57,10 @@ class _SalomonScreenState extends State<SalomonScreen> {
                   SalomonBottomBarItem(
                     icon: const FaIcon(FontAwesomeIcons.clockRotateLeft),
                     title: const Text("History Action"),
+                  ),
+                  SalomonBottomBarItem(
+                    icon: const FaIcon(FontAwesomeIcons.heart),
+                    title: const Text("Bai 5"),
                   ),
                 ],
               ),

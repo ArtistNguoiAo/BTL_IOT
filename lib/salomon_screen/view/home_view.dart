@@ -82,9 +82,14 @@ class HomeView extends StatelessWidget {
                           style: TextStyleUtils.textStyleNunitoS24W700White,
                         ),
                       ),
-                      FaIcon(
-                        FontAwesomeIcons.bell,
-                        color: ColorUtils.white,
+                      InkWell(
+                        onTap: () {
+                          Navigator.pushNamed(context, AppRoutes.wind);
+                        },
+                        child: FaIcon(
+                          FontAwesomeIcons.bell,
+                          color: ColorUtils.white,
+                        ),
                       ),
                     ],
                   ),
@@ -354,7 +359,7 @@ class HomeView extends StatelessWidget {
         LineChartBarData(
           spots: listSensorData.asMap().entries.map((entry) {
             int reversedIndex = listSensorData.length - 1 - entry.key;
-            return FlSpot(reversedIndex.toDouble(), entry.value.temperature / 10);
+            return FlSpot(reversedIndex.toDouble(), double.parse(entry.value.temperature) / 10);
           }).toList(),
           isCurved: true,
           gradient: LinearGradient(
@@ -368,7 +373,7 @@ class HomeView extends StatelessWidget {
         LineChartBarData(
           spots: listSensorData.asMap().entries.map((entry) {
             int reversedIndex = listSensorData.length - 1 - entry.key;
-            return FlSpot(reversedIndex.toDouble(), entry.value.humidity / 10);
+            return FlSpot(reversedIndex.toDouble(), double.parse(entry.value.humidity) / 10);
           }).toList(),
           isCurved: true,
           gradient: LinearGradient(
@@ -382,7 +387,7 @@ class HomeView extends StatelessWidget {
         LineChartBarData(
           spots: listSensorData.asMap().entries.map((entry) {
             int reversedIndex = listSensorData.length - 1 - entry.key;
-            return FlSpot(reversedIndex.toDouble(), entry.value.light / 409.5);
+            return FlSpot(reversedIndex.toDouble(), double.parse(entry.value.light) / 409.5);
           }).toList(),
           isCurved: true,
           gradient: LinearGradient(

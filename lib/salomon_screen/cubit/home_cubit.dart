@@ -19,28 +19,26 @@ class HomeCubit extends Cubit<HomeState> {
         final listSensorData = await apiResponse.getSensorData(
           page: 0,
           size: 10,
-          temperatureMin: 0,
-          temperatureMax: 100,
-          humidityMin: 0,
-          humidityMax: 100,
-          lightMin: 0,
-          lightMax: 4095,
+          sort: true,
         );
 
         final temperature = await apiResponse.getOpsHistory(
           page: 0,
           size: 1,
           device: 0,
+          sort: true,
         );
         final humidity = await apiResponse.getOpsHistory(
           page: 0,
           size: 1,
           device: 1,
+          sort: true,
         );
         final light = await apiResponse.getOpsHistory(
           page: 0,
           size: 1,
           device: 2,
+          sort: true,
         );
         emit(
           HomeLoaded(
@@ -66,12 +64,6 @@ class HomeCubit extends Cubit<HomeState> {
       final listSensorData = await apiResponse.getSensorData(
         page: 0,
         size: 10,
-        temperatureMin: 0,
-        temperatureMax: 100,
-        humidityMin: 0,
-        humidityMax: 100,
-        lightMin: 0,
-        lightMax: 4095,
       );
 
       final temperature = await apiResponse.getOpsHistory(

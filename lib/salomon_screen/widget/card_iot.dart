@@ -25,7 +25,7 @@ class CardIot extends StatelessWidget {
   final IconData iconSecond;
   final Color colorIcon;
   final String unit;
-  final double value;
+  final String value;
   final double min;
   final double max;
   final IconData iconFeature;
@@ -61,7 +61,7 @@ class CardIot extends StatelessWidget {
                 ),
                 Expanded(
                   child: Slider(
-                      value: value,
+                      value: double.parse(value),
                       onChanged: (value) {},
                       min: min,
                       max: max,

@@ -4,9 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:btl_iot/api/api_response.dart';
 import 'package:btl_iot/core/di/config_di.dart';
 import 'package:btl_iot/core/helper/global.dart';
-import 'package:btl_iot/core/helper/string_helper.dart';
 import 'package:btl_iot/entity/ops_history_entity.dart';
-import 'package:btl_iot/salomon_screen/view/fake_data.dart';
 import 'package:meta/meta.dart';
 
 part 'history_state.dart';
@@ -38,10 +36,10 @@ class HistoryCubit extends Cubit<HistoryState> {
 
   FutureOr<void> search({
     required int page,
-    String? status,
-    String? device,
-    String? startTime,
-    String? endTime,
+    String? typeStatus,
+    String? typeDevice,
+    String? typeSort,
+    String? dataSearch,
   }) async {
     emit(HistoryLoading());
     try{
@@ -52,13 +50,33 @@ class HistoryCubit extends Cubit<HistoryState> {
       if(page == 0) {
         page = 1;
       }
+      int? device;
+      if(typeDevice == 'Điều hoà') {
+        device = 0;
+      }
+      if(typeDevice == 'Quạt') {
+        device = 1;
+      }
+      if(typeDevice == 'Đèn') {
+        device = 2;
+      }
+      if(typeDevice == 'Thiết bị 1') {
+        device = 3;
+      }
+      if(typeDevice == 'Thiết bị 2') {
+        device = 4;
+      }
+      if(typeDevice == 'Thiết bị 3') {
+        device = 5;
+      }
+      print('device: $device');
       await apiResponse.getOpsHistory(
         page: page - 1,
         size: 10,
-        status: status != null ? status == 'ON' ? true : status == 'OFF' ? false : null : null,
-        device: device != null ? device == 'Điều hoà' ?  0 : device == 'Quạt' ? 1 : device == 'Đèn' ? 2 : null : null,
-        startTime: startTime,
-        endTime: endTime,
+        status: typeStatus != null ? typeStatus == 'ON' ? true : typeStatus == 'OFF' ? false : null : null,
+        device: device,
+        sort: typeSort != null ? typeSort == 'Giảm dần' ? true : false : null,
+        dataSearch: dataSearch,
       );
       //check l2
       if(page > totalPagesOps) {
@@ -67,13 +85,32 @@ class HistoryCubit extends Cubit<HistoryState> {
       if(page == 0) {
         page = 1;
       }
+      int? device2;
+      if(typeDevice == 'Điều hoà') {
+        device2 = 0;
+      }
+      if(typeDevice == 'Quạt') {
+        device2 = 1;
+      }
+      if(typeDevice == 'Đèn') {
+        device2 = 2;
+      }
+      if(typeDevice == 'Thiết bị 1') {
+        device2 = 3;
+      }
+      if(typeDevice == 'Thiết bị 2') {
+        device2 = 4;
+      }
+      if(typeDevice == 'Thiết bị 3') {
+        device2 = 5;
+      }
       final listOpsHistory = await apiResponse.getOpsHistory(
         page: page - 1,
         size: 10,
-        status: status != null ? status == 'ON' ? true : status == 'OFF' ? false : null : null,
-        device: device != null ? device == 'Điều hoà' ?  0 : device == 'Quạt' ? 1 : device == 'Đèn' ? 2 : null : null,
-        startTime: startTime,
-        endTime: endTime,
+        status: typeStatus != null ? typeStatus == 'ON' ? true : typeStatus == 'OFF' ? false : null : null,
+        device: device2,
+        sort: typeSort != null ? typeSort == 'Giảm dần' ? true : false : null,
+        dataSearch: dataSearch,
       );
       emit(
         HistoryLoaded(

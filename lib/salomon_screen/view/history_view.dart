@@ -10,77 +10,27 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
-class HistoryView extends StatelessWidget {
+class HistoryView extends StatefulWidget {
   HistoryView({super.key});
 
+  @override
+  State<HistoryView> createState() => _HistoryViewState();
+}
+
+class _HistoryViewState extends State<HistoryView> {
   String device = '';
+
   final TextEditingController searchEditingController = TextEditingController();
+
   final TextEditingController textPageEditingController = TextEditingController();
-  final TextEditingController startEditingController = TextEditingController();
-  final TextEditingController endEditingController = TextEditingController();
+
   final ExpansionTileController expansionTileController = ExpansionTileController();
 
-  DateTime? _firstSelectedDate;
-  DateTime? _secondSelectedDate;
+  String typeStatus = '';
 
-  Future<void> _selectDateTime(BuildContext context, TextEditingController controller, {DateTime? firstDate, DateTime? lastDate}) async {
-    DateTime selectedDate = DateTime.now();
-    TimeOfDay selectedTime = TimeOfDay.now();
+  String typeDevice = '';
 
-    // Chọn ngày với giới hạn firstDate và lastDate
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: firstDate ?? DateTime(2000),
-      lastDate: lastDate ?? DateTime(2101),
-    );
-
-    if (pickedDate != null) {
-      selectedDate = pickedDate;
-
-      // Chọn giờ
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: selectedTime,
-      );
-
-      if (pickedTime != null) {
-        selectedTime = pickedTime;
-
-        // Định dạng ngày và giờ
-        final DateTime finalDateTime = DateTime(
-          selectedDate.year,
-          selectedDate.month,
-          selectedDate.day,
-          selectedTime.hour,
-          selectedTime.minute,
-        );
-        final String formattedDateTime =
-        DateFormat('dd-MM-yyyy HH:mm:ss').format(finalDateTime);
-
-        // Cập nhật TextField tương ứng
-        controller.text = formattedDateTime;
-
-        if (controller == startEditingController) {
-          // Nếu thời gian thứ 1 lớn hơn thời gian thứ 2, cập nhật thời gian thứ 1 bằng thời gian thứ 2
-          if (_secondSelectedDate != null && finalDateTime.isAfter(_secondSelectedDate!)) {
-            _firstSelectedDate = _secondSelectedDate!;
-            controller.text = DateFormat('dd-MM-yyyy HH:mm:ss').format(_secondSelectedDate!);
-          } else {
-            _firstSelectedDate = finalDateTime;
-          }
-        } else {
-          // Nếu thời gian thứ 2 nhỏ hơn thời gian thứ 1, cập nhật thời gian thứ 2 bằng thời gian thứ 1
-          if (_firstSelectedDate != null && finalDateTime.isBefore(_firstSelectedDate!)) {
-            _secondSelectedDate = _firstSelectedDate!;
-            controller.text = DateFormat('dd-MM-yyyy HH:mm:ss').format(_firstSelectedDate!);
-          } else {
-            _secondSelectedDate = finalDateTime;
-          }
-        }
-      }
-    }
-  }
+  String typeSort = '';
 
   @override
   Widget build(BuildContext context) {
@@ -130,17 +80,17 @@ class HistoryView extends StatelessWidget {
                           textInputAction: TextInputAction.search,
                           controller: searchEditingController,
                           decoration: InputDecoration(
-                            hintText: "Search by device name...",
+                            hintText: "Search...",
                             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.primaryColor)),
                             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.grey)),
                           ),
                           onSubmitted: (value) {
                             context.read<HistoryCubit>().search(
                               page: textPageEditingController.text.isNotEmpty ? int.parse(textPageEditingController.text) : 0,
-                              device: searchEditingController.text.trim(),
-                              status: device,
-                              startTime: startEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(startEditingController.text) : null,
-                              endTime: endEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(endEditingController.text) : null,
+                              typeStatus: typeStatus,
+                              typeDevice: typeDevice,
+                              typeSort: typeSort,
+                              dataSearch: searchEditingController.text.trim(),
                             );
                           },
                         ),
@@ -150,10 +100,10 @@ class HistoryView extends StatelessWidget {
                       onTap: () {
                         context.read<HistoryCubit>().search(
                           page: textPageEditingController.text.isNotEmpty ? int.parse(textPageEditingController.text) : 0,
-                          device: searchEditingController.text.trim(),
-                          status: device,
-                          startTime: startEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(startEditingController.text) : null,
-                          endTime: endEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(endEditingController.text) : null,
+                          typeStatus: typeStatus,
+                          typeDevice: typeDevice,
+                          typeSort: typeSort,
+                          dataSearch: searchEditingController.text.trim(),
                         );
                       },
                       child: Container(
@@ -175,12 +125,9 @@ class HistoryView extends StatelessWidget {
               }
             ),
             ExpansionTile(
-              title: ListChoice(
-                  list: const ['ON', 'OFF'],
-                  value: device,
-                  onTap: (value) {
-                    device = value;
-                  }
+              title: Text(
+                'Click here to filter data',
+                style: TextStyleUtils.textStyleNunitoS18W600Black,
               ),
               childrenPadding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
               backgroundColor: ColorUtils.white,
@@ -188,81 +135,37 @@ class HistoryView extends StatelessWidget {
               shape: const Border(),
               controller: expansionTileController,
               children: [
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        'Start Time:',
-                        style: TextStyleUtils.textStyleNunitoS18W600Black,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: ColorUtils.white,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: TextField(
-                          keyboardType: TextInputType.datetime,
-                          controller: startEditingController,
-                          decoration: InputDecoration(
-                            hintText: "From...         <01-01-2024 12:00:00>",
-                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.primaryColor)),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.grey)),
-                            suffixIcon: IconButton(
-                              icon: FaIcon(
-                                FontAwesomeIcons.calendarDays,
-                                color: ColorUtils.primaryColor,
-                              ),
-                              onPressed: () => _selectDateTime(context, startEditingController, lastDate: _secondSelectedDate)
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                ListChoice(
+                    title: 'Search by:',
+                    list: const ['ON', 'OFF'],
+                    value: typeStatus,
+                    onTap: (value) {
+                      setState(() {
+                        typeStatus = value;
+                      });
+                    }
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        'End Time:',
-                        style: TextStyleUtils.textStyleNunitoS18W600Black,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: ColorUtils.white,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: TextField(
-                          keyboardType: TextInputType.datetime,
-                          controller: endEditingController,
-                          decoration: InputDecoration(
-                            hintText: "To...              <01-01-2024 12:00:00>",
-                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.primaryColor)),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.grey)),
-                            suffixIcon: IconButton(
-                              icon: FaIcon(
-                                FontAwesomeIcons.calendarDays,
-                                color: ColorUtils.primaryColor,
-                              ),
-                              onPressed: () => _selectDateTime(context, endEditingController, firstDate: _firstSelectedDate)
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                ListChoice(
+                    title: 'Search by:',
+                    list: const ['Điều hoà', 'Quạt', 'Đèn', 'Thiết bị 1', 'Thiết bị 2', 'Thiết bị 3'],
+                    value: typeDevice,
+                    onTap: (value) {
+                      setState(() {
+                        typeDevice = value;
+                      });
+                    }
+                ),
+                const SizedBox(height: 16),
+                ListChoice(
+                    title: 'Sort by:',
+                    list: const ['Tăng dần', 'Giảm dần'],
+                    value: typeSort,
+                    onTap: (value) {
+                      setState(() {
+                        typeSort = value;
+                      });
+                    }
                 ),
               ],
             ),
@@ -315,7 +218,7 @@ class HistoryView extends StatelessWidget {
                                         return TableRow(
                                           children: [
                                             _dataTable(e.id.toString()),
-                                            _dataTable(e.device == 0 ? 'Điều hòa' : e.device == 1 ? 'Quạt' : 'Đèn'),
+                                            _dataTable(e.device == 0 ? 'Điều hòa' : e.device == 1 ? 'Quạt' : e.device == 2 ? 'Đèn' : e.device == 3 ? 'Thiết bị 1' : e.device == 4 ? 'Thiết bị 2' : 'Thiết bị 3'),
                                             _dataTable(StringHelper.convertTimeToString(e.time)),
                                             _dataTable(e.status ? 'ON' : 'OFF'),
                                           ],
@@ -349,11 +252,11 @@ class HistoryView extends StatelessWidget {
                       InkWell(
                         onTap: () {
                           context.read<HistoryCubit>().search(
-                            page: textPageEditingController.text.isNotEmpty ? int.parse(textPageEditingController.text) : 1,
-                            device: searchEditingController.text.trim(),
-                            status: device,
-                            startTime: startEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(startEditingController.text) : null,
-                            endTime: endEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(endEditingController.text) : null,
+                            page: textPageEditingController.text.isNotEmpty ? int.parse(textPageEditingController.text) : 0,
+                            typeStatus: typeStatus,
+                            typeDevice: typeDevice,
+                            typeSort: typeSort,
+                            dataSearch: searchEditingController.text.trim(),
                           );
                         },
                         child: Container(

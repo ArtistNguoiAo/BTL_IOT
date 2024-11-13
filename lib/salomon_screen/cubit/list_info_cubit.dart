@@ -20,12 +20,6 @@ class ListInfoCubit extends Cubit<ListInfoState> {
       final listSensorData = await apiResponse.getSensorData(
         page: page - 1,
         size: 10,
-        temperatureMin: 0,
-        temperatureMax: 100,
-        humidityMin: 0,
-        humidityMax: 100,
-        lightMin: 0,
-        lightMax: 4095,
       );
       emit(
         ListInfoLoaded(
@@ -42,18 +36,35 @@ class ListInfoCubit extends Cubit<ListInfoState> {
 
   FutureOr<void> search({
     required int page,
+    String? typeSearch,
+    String? typeSort,
     String? dataSearch,
-    required double temperatureMin,
-    required double temperatureMax,
-    required double humidityMin,
-    required double humidityMax,
-    required double lightMin,
-    required double lightMax,
-    String? startTime,
-    String? endTime,
   }) async {
     emit(ListInfoLoading());
     try{
+      String? type;
+      bool? sort;
+
+      if(typeSearch == 'Nhiệt độ') {
+        type = 'temperature';
+      }
+      if(typeSearch == 'Độ ẩm') {
+        type = 'humidity';
+      }
+      if(typeSearch == 'Ánh sáng') {
+        type = 'light';
+      }
+      if(typeSearch == 'Thời gian') {
+        type = 'time';
+      }
+
+      if(typeSort == 'Giảm dần') {
+        sort = true;
+      }
+      else {
+        sort = false;
+      }
+
       //check l1
       if(page > totalPagesData) {
         page = totalPagesData;
@@ -64,15 +75,9 @@ class ListInfoCubit extends Cubit<ListInfoState> {
       await apiResponse.getSensorData(
         page: page - 1,
         size: 10,
+        type: type,
+        sort: sort,
         dataSearch: dataSearch,
-        temperatureMin: temperatureMin,
-        temperatureMax: temperatureMax,
-        humidityMin: humidityMin,
-        humidityMax: humidityMax,
-        lightMin: lightMin,
-        lightMax: lightMax,
-        startTime: startTime,
-        endTime: endTime,
       );
       //check l2
       if(page > totalPagesData) {
@@ -84,15 +89,9 @@ class ListInfoCubit extends Cubit<ListInfoState> {
       final listSensorData = await apiResponse.getSensorData(
         page: page - 1,
         size: 10,
+        type: type,
+        sort: sort,
         dataSearch: dataSearch,
-        temperatureMin: temperatureMin,
-        temperatureMax: temperatureMax,
-        humidityMin: humidityMin,
-        humidityMax: humidityMax,
-        lightMin: lightMin,
-        lightMax: lightMax,
-        startTime: startTime,
-        endTime: endTime,
       );
       emit(
         ListInfoLoaded(

@@ -3,8 +3,15 @@ import 'package:btl_iot/core/utils/text_style_utils.dart';
 import 'package:flutter/material.dart';
 
 class ListChoice extends StatefulWidget {
-  const ListChoice({super.key, required this.list, required this.value, required this.onTap});
+  const ListChoice({
+    super.key,
+    required this.title,
+    required this.list,
+    required this.value,
+    required this.onTap,
+  });
 
+  final String title;
   final List<String> list;
   final String value;
   final Function(String) onTap;
@@ -27,7 +34,7 @@ class _ListChoiceState extends State<ListChoice> {
     return Row(
       children: [
         Text(
-          'Filter by status:',
+          widget.title,
           style: TextStyleUtils.textStyleNunitoS18W600Black,
         ),
         Expanded(

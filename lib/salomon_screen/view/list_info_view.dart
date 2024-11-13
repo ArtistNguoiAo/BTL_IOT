@@ -3,91 +3,30 @@ import 'package:btl_iot/core/route/app_route.dart';
 import 'package:btl_iot/core/utils/color_utils.dart';
 import 'package:btl_iot/core/utils/text_style_utils.dart';
 import 'package:btl_iot/core/widget/base_loading.dart';
-import 'package:btl_iot/core/widget/range_slider_choice.dart';
+import 'package:btl_iot/core/widget/list_choice.dart';
 import 'package:btl_iot/salomon_screen/cubit/list_info_cubit.dart';
-import 'package:btl_iot/salomon_screen/view/fake_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
-class ListInfoView extends StatelessWidget {
+class ListInfoView extends StatefulWidget {
   ListInfoView({super.key});
 
+  @override
+  State<ListInfoView> createState() => _ListInfoViewState();
+}
+
+class _ListInfoViewState extends State<ListInfoView> {
   final TextEditingController searchEditingController = TextEditingController();
+
   final TextEditingController textPageEditingController = TextEditingController();
-  final TextEditingController startEditingController = TextEditingController();
-  final TextEditingController endEditingController = TextEditingController();
+
   final ExpansionTileController expansionTileController = ExpansionTileController();
 
-  final TextEditingController minTemperatureController = TextEditingController(text: '0');
-  final TextEditingController maxTemperatureController = TextEditingController(text: '100');
-  final TextEditingController minHumidityController = TextEditingController(text: '0');
-  final TextEditingController maxHumidityController = TextEditingController(text: '100');
-  final TextEditingController minLightController = TextEditingController(text: '0');
-  final TextEditingController maxLightController = TextEditingController(text: '4095');
+  String typeSearch = '';
 
-  DateTime? _firstSelectedDate;
-  DateTime? _secondSelectedDate;
-
-  Future<void> _selectDateTime(BuildContext context, TextEditingController controller, {DateTime? firstDate, DateTime? lastDate}) async {
-    DateTime selectedDate = DateTime.now();
-    TimeOfDay selectedTime = TimeOfDay.now();
-
-    // Chọn ngày với giới hạn firstDate và lastDate
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: firstDate ?? DateTime(2000),
-      lastDate: lastDate ?? DateTime(2101),
-    );
-
-    if (pickedDate != null) {
-      selectedDate = pickedDate;
-
-      // Chọn giờ
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: selectedTime,
-      );
-
-      if (pickedTime != null) {
-        selectedTime = pickedTime;
-
-        // Định dạng ngày và giờ
-        final DateTime finalDateTime = DateTime(
-          selectedDate.year,
-          selectedDate.month,
-          selectedDate.day,
-          selectedTime.hour,
-          selectedTime.minute,
-        );
-        final String formattedDateTime =
-        DateFormat('dd-MM-yyyy HH:mm:ss').format(finalDateTime);
-
-        // Cập nhật TextField tương ứng
-        controller.text = formattedDateTime;
-
-        if (controller == startEditingController) {
-          // Nếu thời gian thứ 1 lớn hơn thời gian thứ 2, cập nhật thời gian thứ 1 bằng thời gian thứ 2
-          if (_secondSelectedDate != null && finalDateTime.isAfter(_secondSelectedDate!)) {
-            _firstSelectedDate = _secondSelectedDate!;
-            controller.text = DateFormat('dd-MM-yyyy HH:mm:ss').format(_secondSelectedDate!);
-          } else {
-            _firstSelectedDate = finalDateTime;
-          }
-        } else {
-          // Nếu thời gian thứ 2 nhỏ hơn thời gian thứ 1, cập nhật thời gian thứ 2 bằng thời gian thứ 1
-          if (_firstSelectedDate != null && finalDateTime.isBefore(_firstSelectedDate!)) {
-            _secondSelectedDate = _firstSelectedDate!;
-            controller.text = DateFormat('dd-MM-yyyy HH:mm:ss').format(_firstSelectedDate!);
-          } else {
-            _secondSelectedDate = finalDateTime;
-          }
-        }
-      }
-    }
-  }
+  String typeSort = '';
 
   @override
   Widget build(BuildContext context) {
@@ -138,22 +77,16 @@ class ListInfoView extends StatelessWidget {
                           keyboardType: TextInputType.number,
                           controller: searchEditingController,
                           decoration: InputDecoration(
-                            hintText: "Search by temperature, humidity, light...",
+                            hintText: "Search...",
                             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.primaryColor)),
                             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.grey)),
                           ),
                           onSubmitted: (value) {
                             context.read<ListInfoCubit>().search(
                               page: textPageEditingController.text.isNotEmpty ? int.parse(textPageEditingController.text) : 1,
-                              dataSearch: searchEditingController.text,
-                              temperatureMin: double.parse(minTemperatureController.text),
-                              temperatureMax: double.parse(maxTemperatureController.text),
-                              humidityMin: double.parse(minHumidityController.text),
-                              humidityMax: double.parse(maxHumidityController.text),
-                              lightMin: double.parse(minLightController.text),
-                              lightMax: double.parse(maxLightController.text),
-                              startTime: startEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(startEditingController.text) : null,
-                              endTime: endEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(endEditingController.text) : null,
+                              typeSearch: typeSearch,
+                              typeSort: typeSort,
+                              dataSearch: searchEditingController.text.trim(),
                             );
                           },
                         ),
@@ -163,15 +96,9 @@ class ListInfoView extends StatelessWidget {
                       onTap: () {
                         context.read<ListInfoCubit>().search(
                           page: textPageEditingController.text.isNotEmpty ? int.parse(textPageEditingController.text) : 1,
-                          dataSearch: searchEditingController.text,
-                          temperatureMin: double.parse(minTemperatureController.text),
-                          temperatureMax: double.parse(maxTemperatureController.text),
-                          humidityMin: double.parse(minHumidityController.text),
-                          humidityMax: double.parse(maxHumidityController.text),
-                          lightMin: double.parse(minLightController.text),
-                          lightMax: double.parse(maxLightController.text),
-                          startTime: startEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(startEditingController.text) : null,
-                          endTime: endEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(endEditingController.text) : null,
+                          typeSearch: typeSearch,
+                          typeSort: typeSort,
+                          dataSearch: searchEditingController.text.trim(),
                         );
                       },
                       child: Container(
@@ -207,105 +134,26 @@ class ListInfoView extends StatelessWidget {
                       shape: const Border(),
                       controller: expansionTileController,
                       children: [
-                        RangeSliderChoice(
-                          minValue: 0,
-                          maxValue: 100,
-                          minController: minTemperatureController,
-                          maxController: maxTemperatureController,
-                          color: ColorUtils.redAccent,
-                          title: 'Nhiệt độ',
-                        ),
-                        RangeSliderChoice(
-                          minValue: 0,
-                          maxValue: 100,
-                          minController: minHumidityController,
-                          maxController: maxHumidityController,
-                          color: ColorUtils.blueAccent,
-                          title: 'Độ ẩm',
-                        ),
-                        RangeSliderChoice(
-                          minValue: 0,
-                          maxValue: 4095,
-                          minController: minLightController,
-                          maxController: maxLightController,
-                          color: ColorUtils.yellowGold,
-                          title: 'Ánh sáng',
+                        ListChoice(
+                          title: 'Search by:',
+                          list: const ['Nhiệt độ', 'Độ ẩm', 'Ánh sáng', 'Thời gian'],
+                          value: typeSearch,
+                          onTap: (value) {
+                            setState(() {
+                              typeSearch = value;
+                            });
+                          }
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 80,
-                              child: Text(
-                                'Start Time:',
-                                style: TextStyleUtils.textStyleNunitoS18W600Black,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: ColorUtils.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: TextField(
-                                  keyboardType: TextInputType.datetime,
-                                  controller: startEditingController,
-                                  decoration: InputDecoration(
-                                    hintText: "From...         <01-01-2024 12:00:00>",
-                                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.primaryColor)),
-                                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.grey)),
-                                    suffixIcon: IconButton(
-                                        icon: FaIcon(
-                                          FontAwesomeIcons.calendarDays,
-                                          color: ColorUtils.primaryColor,
-                                        ),
-                                        onPressed: () => _selectDateTime(context, startEditingController, lastDate: _secondSelectedDate)
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 80,
-                              child: Text(
-                                'End Time:',
-                                style: TextStyleUtils.textStyleNunitoS18W600Black,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: ColorUtils.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: TextField(
-                                  keyboardType: TextInputType.datetime,
-                                  controller: endEditingController,
-                                  decoration: InputDecoration(
-                                    hintText: "To...              <01-01-2024 12:00:00>",
-                                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.primaryColor)),
-                                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.grey)),
-                                    suffixIcon: IconButton(
-                                        icon: FaIcon(
-                                          FontAwesomeIcons.calendarDays,
-                                          color: ColorUtils.primaryColor,
-                                        ),
-                                        onPressed: () => _selectDateTime(context, endEditingController, firstDate: _firstSelectedDate)
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                        ListChoice(
+                          title: 'Sort by:',
+                          list: const ['Tăng dần', 'Giảm dần'],
+                          value: typeSort,
+                          onTap: (value) {
+                            setState(() {
+                              typeSort = value;
+                            });
+                          }
                         ),
                       ],
                     ),
@@ -400,15 +248,9 @@ class ListInfoView extends StatelessWidget {
                         onTap: () {
                           context.read<ListInfoCubit>().search(
                             page: textPageEditingController.text.isNotEmpty ? int.parse(textPageEditingController.text) : 1,
-                            dataSearch: searchEditingController.text,
-                            temperatureMin: double.parse(minTemperatureController.text),
-                            temperatureMax: double.parse(maxTemperatureController.text),
-                            humidityMin: double.parse(minHumidityController.text),
-                            humidityMax: double.parse(maxHumidityController.text),
-                            lightMin: double.parse(minLightController.text),
-                            lightMax: double.parse(maxLightController.text),
-                            startTime: startEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(startEditingController.text) : null,
-                            endTime: endEditingController.text != '' ? StringHelper.convertStringToOffsetDateTime(endEditingController.text) : null,
+                            typeSearch: typeSearch,
+                            typeSort: typeSort,
+                            dataSearch: searchEditingController.text.trim(),
                           );
                         },
                         child: Container(

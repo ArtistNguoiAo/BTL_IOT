@@ -42,8 +42,8 @@ class ApiResponse {
     required int size,
     bool? status,
     int? device,
-    String? startTime,
-    String? endTime,
+    bool? sort,
+    String? dataSearch,
   }) async {
     var link = '$baseUrl/search-history-ops?page=$page&size=$size';
     if(status != null) {
@@ -52,8 +52,11 @@ class ApiResponse {
     if(device != null) {
       link += '&device=$device';
     }
-    if(startTime != null && endTime != null) {
-      link += '&startTime=$startTime&endTime=$endTime';
+    if(sort != null) {
+      link += '&sort=$sort';
+    }
+    if(dataSearch != null) {
+      link += '&dataSearch=$dataSearch';
     }
     final url = Uri.parse(link);
     try {
@@ -73,24 +76,22 @@ class ApiResponse {
   Future<List<SensorDataEntity>> getSensorData({
     required int page,
     required int size,
+    String? type,
+    bool? sort,
     String? dataSearch,
-    required double temperatureMin,
-    required double temperatureMax,
-    required double humidityMin,
-    required double humidityMax,
-    required double lightMin,
-    required double lightMax,
-    String? startTime,
-    String? endTime,
   }) async {
-    var link = '$baseUrl/search-sensor-data?page=$page&size=$size&temperatureMin=$temperatureMin&temperatureMax=$temperatureMax&humidityMin=$humidityMin&humidityMax=$humidityMax&lightMin=$lightMin&lightMax=$lightMax';
+    var link = '$baseUrl/search-sensor-data?page=$page&size=$size';
+    if(type != null) {
+      link += '&type=$type';
+    }
+    if(sort != null) {
+      link += '&sort=$sort';
+    }
     if(dataSearch != null) {
       link += '&dataSearch=$dataSearch';
     }
-    if(startTime != null && endTime != null) {
-      link += '&startTime=$startTime&endTime=$endTime';
-    }
     final url = Uri.parse(link);
+    print(link);
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {

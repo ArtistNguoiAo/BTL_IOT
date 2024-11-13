@@ -1,8 +1,9 @@
 class SensorDataEntity {
   final int id;
-  final double temperature;
-  final double humidity;
-  final double light;
+  final String temperature;
+  final String humidity;
+  final String light;
+  final String wind;
   final String time;
 
   SensorDataEntity({
@@ -10,15 +11,17 @@ class SensorDataEntity {
     required this.temperature,
     required this.humidity,
     required this.light,
+    required this.wind,
     required this.time,
   });
 
   factory SensorDataEntity.fromJson(Map<String, dynamic> json) {
     return SensorDataEntity(
       id: json['id'] as int,
-      temperature: json['temperature'] as double,
-      humidity: json['humidity'] as double,
-      light: json['light'] as double,
+      temperature: json['temperature'] as String,
+      humidity: json['humidity'] as String,
+      light: json['light'] as String,
+      wind: json['wind'] as String,
       time: json['time'] as String,
     );
   }
@@ -29,6 +32,7 @@ class SensorDataEntity {
       'temperature': temperature,
       'humidity': humidity,
       'light': light,
+      'wind': wind,
       'time': time,
     };
   }
